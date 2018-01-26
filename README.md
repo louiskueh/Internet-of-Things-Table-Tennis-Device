@@ -1,4 +1,7 @@
 # Pikachu
 Embedded systems
 
-# Command line games 
+# Questions
+
+* How to check if magnetometer is working - values too high
+* Putty startup efficiently
