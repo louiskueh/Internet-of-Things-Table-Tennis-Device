@@ -32,14 +32,16 @@ def twos_complement (val):
     return val
 while True:
     data = i2c.readfrom_mem(30, 0x06, 6)
+    #data = i2c.readfrom(30,6)
     #intdata = int.from_bytes(data,’big’)
 
-    x = twos_complement(int.from_bytes(data[:2],'big'))
-    z = twos_complement(int.from_bytes(data[2:4],'big'))
-    y = twos_complement(int.from_bytes(data[-2:],'big'))
+    x = twos_complement(int.from_bytes(data[:2],'big'))/1000
+    z = twos_complement(int.from_bytes(data[2:4],'big'))/1000
+    y = twos_complement(int.from_bytes(data[-2:],'big'))/1000
     #x =int.from_bytes(x,’big’)
     # y = data[2:4]
     # z = data [:2
     print (str(x) + ', ' + str(y) + ', ' + str(z))
-    #time.sleep(1)
+    i2c.writeto(30,b'\x03')
+    time.sleep_ms(100)
     #i2c.writeto_mem(30, 0x02, b'\x00')
