@@ -1,10 +1,15 @@
 from machine import Pin, I2C
-import timed
+import time, ujson
 
+#ampy --port COM5 put main.py
 def twos_complement(val):
     if (val & (1 << (16 - 1))):
         val = val - (1 << 16)
     return val
+
+def mqttSend(x,y,z):
+    dict = {'X' : x, 'Y':y, 'Z':z  }
+    return ujson.dumps(dict)
 
 def setup_cont_M():
     # print(i2c.scan())                      # scan for slaves, returning a list of 7-bit addresses
@@ -23,7 +28,7 @@ while True:
     x = twos_complement(int.from_bytes(data[:2], 'big'))
     z = twos_complement(int.from_bytes(data[2:4], 'big'))
     y = twos_complement(int.from_bytes(data[-2:], 'big'))
-
+    print ("json: " + mqttSend(x,y,z) )
     print (str(x) + ', ' + str(y) + ', ' + str(z))
     i2c.writeto(30, b'\x03')
     time.sleep_ms(100)
