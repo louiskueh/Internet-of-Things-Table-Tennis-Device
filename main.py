@@ -1,5 +1,5 @@
 from machine import Pin, I2C
-import time, ujson,network
+import time, ujson,network,machine,ubinascii
 
 #ampy --port COM5 put main.py
 def twos_complement(val):
@@ -8,9 +8,21 @@ def twos_complement(val):
     return val
 
 def mqttSend(x,y,z):
-    dict = {'X' : x, 'Y':y, 'Z':z  }
-    return ujson.dumps(dict)
+    from umqtt.simple import MQTTClient
 
+    # X Y Z to json
+    dict = {'X' : x, 'Y':y, 'Z':z  }
+    jsonString = ujson.dumps(dict)
+    # # setup
+    # CLIENT_ID = ubinascii.hexlify(machine.unique_id())
+    # BROKER_ADDRESS = "192.168.0.10"
+    # TOPIC = b"pikachu"
+    #
+    # # End
+    # client = MQTTClient(CLIENT_ID,BROKER_ADDRESS)
+    # client.connect()
+    # client.publish(TOPIC,bytes(jsonString,'utf-8')
+    return ""
 
 def do_connect():
     import network
@@ -33,6 +45,8 @@ def do_connect():
         #Needed for setup
         time.sleep_ms(2000)
     print('Network connected:', sta_if.isconnected())
+
+
 def setup_cont_M():
     # print(i2c.scan())                      # scan for slaves, returning a list of 7-bit addresses
     i2c.writeto_mem(30, 0x00, b'\x70')     # 8 Samples, 15 Hz
@@ -41,7 +55,9 @@ def setup_cont_M():
     time.sleep_ms(6)
 
 i2c = I2C(scl=Pin(5), sda=Pin(4), freq=100000)
+
 do_connect()
+
 setup_cont_M()  # Initializecontinuous measurement
 while True:
     # Read 6 bytes starting from reg 3  - Reg 3 - 8 contain X Z Y
