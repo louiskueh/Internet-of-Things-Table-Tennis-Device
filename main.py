@@ -15,7 +15,7 @@ def mqttSend(x,y,z):
     jsonString = ujson.dumps(dict)
     CLIENT_ID = ubinascii.hexlify(machine.unique_id())
     BROKER_ADDRESS = "192.168.0.10"
-    TOPIC = b"pikachu"
+    TOPIC = b"#pikachu"
 
     # End
     client = MQTTClient(CLIENT_ID,BROKER_ADDRESS)
