@@ -22,6 +22,16 @@ def do_connect():
     sta_if.connect('EEERover', 'exhibition')
     #Needed for setup
     time.sleep_ms(2000)
+    while sta_if.isconnected() == False:
+        print("Attempting to re-connect to work")
+        ap_if = network.WLAN(network.AP_IF)
+        ap_if.active(False)
+        sta_if = network.WLAN(network.STA_IF)
+        sta_if.active(True)
+        time.sleep_ms(100)
+        sta_if.connect('EEERover', 'exhibition')
+        #Needed for setup
+        time.sleep_ms(2000)
     print('Network connected:', sta_if.isconnected())
 def setup_cont_M():
     # print(i2c.scan())                      # scan for slaves, returning a list of 7-bit addresses
