@@ -1,4 +1,5 @@
 from machine import Pin, I2C
+from umqtt.simple import MQTTClient
 import time, ujson,network,machine,ubinascii
 
 #ampy --port COM5 put main.py
@@ -8,21 +9,19 @@ def twos_complement(val):
     return val
 
 def mqttSend(x,y,z):
-    from umqtt.simple import MQTTClient
 
     # X Y Z to json
     dict = {'X' : x, 'Y':y, 'Z':z  }
     jsonString = ujson.dumps(dict)
-    # # setup
-    # CLIENT_ID = ubinascii.hexlify(machine.unique_id())
-    # BROKER_ADDRESS = "192.168.0.10"
-    # TOPIC = b"pikachu"
-    #
-    # # End
-    # client = MQTTClient(CLIENT_ID,BROKER_ADDRESS)
-    # client.connect()
-    # client.publish(TOPIC,bytes(jsonString,'utf-8')
-    return ""
+    CLIENT_ID = ubinascii.hexlify(machine.unique_id())
+    BROKER_ADDRESS = "192.168.0.10"
+    TOPIC = b"pikachu"
+
+    # End
+    client = MQTTClient(CLIENT_ID,BROKER_ADDRESS)
+    client.connect()
+    client.publish(TOPIC, bytes (jsonString, 'utf-8'))
+    print ('sent: ' + jsonString )
 
 def do_connect():
     import network
@@ -56,9 +55,11 @@ def setup_cont_M():
 
 i2c = I2C(scl=Pin(5), sda=Pin(4), freq=100000)
 
+# Connect to wifi
 do_connect()
 
 setup_cont_M()  # Initializecontinuous measurement
+
 while True:
     # Read 6 bytes starting from reg 3  - Reg 3 - 8 contain X Z Y
     data = i2c.readfrom_mem(30, 0x03, 6)
@@ -67,7 +68,7 @@ while True:
     z = twos_complement(int.from_bytes(data[2:4], 'big'))
     y = twos_complement(int.from_bytes(data[-2:], 'big'))
     #print ("json: " + mqttSend(x,y,z) )
-
+    mqttSend(x,y,z)
     #print (str(x) + ', ' + str(y) + ', ' + str(z))
     i2c.writeto(30, b'\x03')
     time.sleep_ms(100)
