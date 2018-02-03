@@ -21,10 +21,10 @@ def mqttSend(x,y,z):
     # End
     client = MQTTClient(CLIENT_ID,BROKER_ADDRESS,port = 1883)
     client.connect()
-    client.publish(TOPIC,b"hi")
-    #client.publish(TOPIC, bytes (jsonString, 'utf-8'))
-    print ('sent: hi with topic: ' + str(TOPIC)  )
-    #print ('sent: ' + jsonString )
+    #client.publish(TOPIC,b"hi")
+    client.publish(TOPIC, bytes (jsonString, 'utf-8'))
+    #print ('sent: hi with topic: ' + str(TOPIC)  )
+    print ('sent: ' + jsonString + str(TOPIC))
 
 def do_connect():
     import network
