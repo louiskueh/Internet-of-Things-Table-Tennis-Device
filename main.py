@@ -1,7 +1,8 @@
 from machine import Pin, I2C
 from umqtt.simple import MQTTClient
 import time, ujson,network,machine,ubinascii
-
+def sub_cb(topic, msg):
+    print((topic, msg))
 #ampy --port COM5 put main.py
 def twos_complement(val):
     if (val & (1 << (16 - 1))):
@@ -25,6 +26,29 @@ def mqttSend(x,y,z):
     client.publish(TOPIC, bytes (jsonString, 'utf-8'))
     #print ('sent: hi with topic: ' + str(TOPIC)  )
     print ('sent: ' + jsonString + str(TOPIC))
+## Receive data from broker
+def mqttReceive():
+
+    CLIENT_ID = ubinascii.hexlify(machine.unique_id())
+    #BROKER_ADDRESS = "192.168.0.10"
+    BROKER_ADDRESS = "192.168.0.87"
+    c =  MQTTClient(CLIENT_ID,BROKER_ADDRESS,port = 1883)
+    print ('Waiting to recieve')
+    c.set_callback(sub_cb)
+    c.connect()
+    c.subscribe(b"pikachu/rec")
+    while True:
+        if True:
+            # Blocking wait for message
+            c.wait_msg()
+        else:
+            # Non-blocking wait for message
+            c.check_msg()
+            # Then need to sleep to avoid 100% CPU usage (in a real
+            # app other useful actions would be performed instead)
+            time.sleep(1)
+
+    c.disconnect()
 
 def do_connect():
     import network
@@ -71,7 +95,8 @@ while True:
     z = twos_complement(int.from_bytes(data[2:4], 'big'))
     y = twos_complement(int.from_bytes(data[-2:], 'big'))
     #print ("json: " + mqttSend(x,y,z) )
-    mqttSend(x,y,z)
+    mqttReceive()
+    #mqttSend(x,y,z)
     #print (str(x) + ', ' + str(y) + ', ' + str(z))
     i2c.writeto(30, b'\x03')
     time.sleep_ms(100)
