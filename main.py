@@ -14,14 +14,17 @@ def mqttSend(x,y,z):
     dict = {'X' : x, 'Y':y, 'Z':z  }
     jsonString = ujson.dumps(dict)
     CLIENT_ID = ubinascii.hexlify(machine.unique_id())
-    BROKER_ADDRESS = "192.168.0.10"
-    TOPIC = b"#pikachu"
+    #BROKER_ADDRESS = "192.168.0.10"
+    BROKER_ADDRESS = "192.168.0.87"
+    TOPIC = b"pikachu/cw"
 
     # End
-    client = MQTTClient(CLIENT_ID,BROKER_ADDRESS)
+    client = MQTTClient(CLIENT_ID,BROKER_ADDRESS,port = 1883)
     client.connect()
-    client.publish(TOPIC, bytes (jsonString, 'utf-8'))
-    print ('sent: ' + jsonString )
+    client.publish(TOPIC,b"hi")
+    #client.publish(TOPIC, bytes (jsonString, 'utf-8'))
+    print ('sent: hi with topic: ' + str(TOPIC)  )
+    #print ('sent: ' + jsonString )
 
 def do_connect():
     import network
@@ -34,7 +37,7 @@ def do_connect():
     #Needed for setup
     time.sleep_ms(2000)
     while sta_if.isconnected() == False:
-        print("Attempting to re-connect to work")
+        print("Attempting to re-connect to network")
         ap_if = network.WLAN(network.AP_IF)
         ap_if.active(False)
         sta_if = network.WLAN(network.STA_IF)
