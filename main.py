@@ -18,7 +18,7 @@ while True:
     #print ("json: " + mqttSend(x,y,z) )
     #functions.mqttReceive()
     #mqttSend(x,y,z)
-    print (str(x) + ', ' + str(y) + ', ' + str(z))
-
+    #print (str(x) + ', ' + str(y) + ', ' + str(z))
+    print (str(x) + ', ' + str(y))
     i2c.writeto(30, b'\x03')
     time.sleep_ms(100)
