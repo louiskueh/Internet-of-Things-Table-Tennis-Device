@@ -1,5 +1,5 @@
 from machine import Pin, I2C
-import time,functions
+import time, functions
 
 i2c = I2C(scl=Pin(5), sda=Pin(4), freq=100000)
 
@@ -8,17 +8,29 @@ i2c = I2C(scl=Pin(5), sda=Pin(4), freq=100000)
 
 # Initializecontinuous measurement
 functions.setup_cont_M(i2c)
+
+
+xOffset,yOffset =0,0#functions.calibrate(i2c)
+print ('x y offset = ' + str(xOffset) +' , ' + str(yOffset))
 while True:
     # Read 6 bytes starting from reg 3  - Reg 3 - 8 contain X Z Y
+
     data = i2c.readfrom_mem(30, 0x03, 6)
 
-    x = functions.twos_complement(int.from_bytes(data[:2], 'big'))
+    x = functions.twos_complement(int.from_bytes(data[:2], 'big')) -xOffset
     z = functions.twos_complement(int.from_bytes(data[2:4], 'big'))
-    y = functions.twos_complement(int.from_bytes(data[-2:], 'big'))
+    y = functions.twos_complement(int.from_bytes(data[-2:], 'big')) - yOffset
+
+
     #print ("json: " + mqttSend(x,y,z) )
     #functions.mqttReceive()
     #mqttSend(x,y,z)
-    #print (str(x) + ', ' + str(y) + ', ' + str(z))
-    print (str(x) + ', ' + str(y))
+    # print (str(x) + ', ' + str(y) + ', ' + str(z))
+    # print (str(x) + ', ' + str(y))
+    # print ('magnitude = ' + str(math.sqrt(x*x + y*y)) )
+    xy = functions.angle(x,y)
+    print ('XY:' + str(xy) + ',        XZ:' + str(functions.angle(x,z)) + ' ,       YZ:' + str(functions.angle(y,z)) )
+    functions.compass(xy);
+
     i2c.writeto(30, b'\x03')
     time.sleep_ms(100)

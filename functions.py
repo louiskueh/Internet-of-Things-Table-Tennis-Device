@@ -1,10 +1,125 @@
+#ampy --port COM5 put main.py
 from machine import Pin, I2C
 from umqtt.simple import MQTTClient
-import time, ujson,network,machine,ubinascii
+import time, ujson,network,machine,ubinascii, math
+
+def compass(angle):
+    if angle > 337.5 or angle < 22.5:
+        print("  _______")
+        print(" /   N   \\")
+        print("|    |    |")
+        print("|E   |   W|")
+        print("|         |")
+        print(" \___S___/")
+    elif angle > 22.5 and angle < 67.5:
+        print("  _______")
+        print(" /   N   \\")
+        print("|     /   |")
+        print("|E   /   W|")
+        print("|         |")
+        print(" \___S___/")
+    elif angle > 67.5 and angle < 112.5:
+        print("  _______")
+        print(" /   N   \\")
+        print("|         |")
+        print("|E   --- W|")
+        print("|         |")
+        print(" \___S___/")
+    elif angle > 112.5 and angle < 157.5:
+        print("  _______")
+        print(" /   N   \\")
+        print("|         |")
+        print("|E   \   W|")
+        print("|     \   |")
+        print(" \___S___/")
+    elif angle > 157.5 and angle < 202.5:
+        print("  _______")
+        print(" /   N   \\")
+        print("|         |")
+        print("|E   |   W|")
+        print("|    |    |")
+        print(" \___S___/")
+    elif angle > 202.5 and angle < 247.5:
+        print("  _______")
+        print(" /   N   \\")
+        print("|         |")
+        print("|E   /   W|")
+        print("|   /     |")
+        print(" \___S___/")
+    elif angle > 247.5 and angle < 292.5:
+        print("  _______")
+        print(" /   N   \\")
+        print("|         |")
+        print("|E ---   W|")
+        print("|         |")
+        print(" \___S___/")
+    elif angle > 292.5 and angle < 337.5:
+        print("  _______")
+        print(" /   N   \\")
+        print("|   \     |")
+        print("|E   \   W|")
+        print("|         |")
+        print(" \___S___/")
+
+
+def angle (x,y):
+    if y == 0:
+        y = 0.000001
+    # heading = math.degrees(math.atan(x/y))
+    heading = math.atan2(y, x)
+    # if (angle < 0):
+    #     angle = 90 - angle
+    declinationAngle = 0.00756
+    heading += declinationAngle
+
+    if heading < 0:
+        heading += 2 * 3.1415
+
+    if heading > 2 * 3.1415:
+        heading -= 2 * 3.1415
+
+    headingDegrees = heading * 180/ 3.1415
+
+    return headingDegrees
+
+def calibrate (i2c):
+    # =============== Calibration ====================
+    minX = 9999
+    minY = 9999
+    maxX = -9999
+    maxY = -9999
+    t_end = time.time() + 20
+    print ('starting calibration. Please move magnetometer in circles for 1 min')
+    while time.time() < t_end :
+        data = i2c.readfrom_mem(30, 0x03, 6)
+
+        x = twos_complement(int.from_bytes(data[:2], 'big'))
+        z = twos_complement(int.from_bytes(data[2:4], 'big'))
+        y = twos_complement(int.from_bytes(data[-2:], 'big'))
+        # print (str(x) + ', ' + str(y))
+        if x < minX:
+            print("New minX = " + str(minX))
+            minX = x
+    	if y < minY:
+            print("New minY = " + str(minY))
+            minY=y
+    	if x > maxX:
+            print("New maxX = " + str(maxX))
+            maxX=x
+    	if y > maxY:
+            print("New maxY = " + str(maxY))
+            maxY=y
+        #i2c.writeto(30, b'\x03')
+        time.sleep_ms(100)
+    print ('Finished calibration')
+    xOffset = (maxX + minX) / 2 ;
+    yOffset = (maxY + minY) / 2 ;
+    return xOffset,yOffset
+
 
 def sub_cb(topic, msg):
     print((topic, msg))
-#ampy --port COM5 put main.py
+
 def twos_complement(val):
     if (val & (1 << (16 - 1))):
         val = val - (1 << 16)
@@ -26,6 +141,7 @@ def mqttSend(x,y,z):
     client.publish(TOPIC, bytes (jsonString, 'utf-8'))
     #print ('sent: hi with topic: ' + str(TOPIC)  )
     print ('sent: ' + jsonString + str(TOPIC))
+
 ## Receive data from broker
 def mqttReceive():
 
@@ -58,8 +174,11 @@ def do_connect():
     sta_if.active(True)
     time.sleep_ms(100)
     sta_if.connect('EEERover', 'exhibition')
-    #Needed for setup
+
+    # Needed for reliable setup
     time.sleep_ms(2000)
+
+    # reattempt network conneciton until success
     while sta_if.isconnected() == False:
         print("Attempting to re-connect to network")
         ap_if = network.WLAN(network.AP_IF)
