@@ -3,6 +3,12 @@ from machine import Pin, I2C
 from umqtt.simple import MQTTClient
 import time, ujson,network,machine,ubinascii, math
 
+def difference (x,y):
+    dif = abs(x-y)%360
+    if dif > 180:
+        return 360 - dif
+    else :
+        return dif
 def pikachu():
     print ("░░░░█░▀▄░░░░░░░░░░▄▄███▀░░ ")
     print ("░░░░█░░░▀▄░▄▄▄▄▄░▄▀░░░█▀░░ ")

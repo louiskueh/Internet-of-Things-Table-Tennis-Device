@@ -54,16 +54,17 @@ def start ():
             # if xz >= 310 or xz <= 50 or inxz >= 310 or inxz <= 50:
             #     xz = (xz+150)%360
             #     inxz = (inxz+150)%360
-
-            print('angle measured yz: ' + str(abs(yz-inyz)) +' xy: ' + str(abs(xy - inxy)) + ' yz: ' + str(abs(yz - inyz)))
-            if abs(yz-inyz) >= 40 :
-            #and abs(xy - inxy) <=50 and abs(yz - inyz) <= 50:
+            yzd = functions.difference(yz,inyz)
+            xyd = functions.difference(xy,inxy)
+            xzd = functions.difference(xz,inxz)
+            print('angle measured yz: ' + str(yzd) +' xy: ' + str(xyd) + ' yz: ' +str(xzd) )
+            if yzd >= 40 and xyd <=50 and xzd <= 50:
                 functions.flat_swing()
                 return 1
             else:
-                print('You failed the flat swing. You angle was ' + str(abs(yz-inyz)))
+                print('You failed the flat swing. You angle was ' + str(yzd))
                 print ('Please ensure you swing from your waist to the front of your body.Your deviation from a proper flat swing is : '
-                + str(50 - abs(yz-inyz))  )
+                + str(40 - yzd))
                 return 0
         n += 1
         i2c.writeto(30, b'\x03')
