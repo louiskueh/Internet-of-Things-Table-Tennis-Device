@@ -15,6 +15,7 @@ print ('x y offset = ' + str(xOffset) +' , ' + str(yOffset))
 
 
 functions.pikachu()
+flatCount = 0
 
 def start ():
     n = 0
@@ -57,26 +58,30 @@ def start ():
             yzd = functions.difference(yz,inyz)
             xyd = functions.difference(xy,inxy)
             xzd = functions.difference(xz,inxz)
-            print('angle measured yz: ' + str(yzd) +' xy: ' + str(xyd) + ' yz: ' +str(xzd) )
+            print('angles yz: ' + str(yzd) +' xy: ' + str(xyd) + ' yz: ' +str(xzd) )
             if yzd >= 40 and xyd <=50 and xzd <= 50:
                 functions.flat_swing()
-                return 1
+                global flatCount
+                flatCount += 1
+                # return 1
             else:
-                print('You failed the flat swing. You angle was ' + str(yzd))
-                print ('Please ensure you swing from your waist to the front of your body.Your deviation from a proper flat swing is : '
-                + str(40 - yzd))
-                return 0
+                print ('No swing detected')
+                print ('Angle achieved = ' + str(yzd))
+                print ('Deviation      = ' + str(40 - yzd))
+                print ('Please ensure you swing from your waist to the front of your body.)
+                # return 0
         n += 1
         i2c.writeto(30, b'\x03')
         time.sleep_ms(150)
 
 
 input("PLEASE PRESS ENTER TO START")
-flatCount = 0
+
 
 while True :
     functions.start_swing()
-    flatCount = flatCount +start()
+    start()
+    # flatCount = flatCount +start()
     print ('flatCount: ' + str(flatCount) )
     print('wait for a while before swinging')
     time.sleep_ms(1500)

@@ -1,4 +1,9 @@
 
+# Todo
+* Detect topspin
+* Server
+* Accelerometer
+* Website
 # MQTT
 CLient and server connect to MQTT broker (Mosquitto, running on own laptop). Mosquitoo configures and sends respective message to/from client/server. Need to be on corresponding ee server
 
