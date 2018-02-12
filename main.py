@@ -21,7 +21,7 @@ while True:
     z = functions.twos_complement(int.from_bytes(data[2:4], 'big'))
     y = functions.twos_complement(int.from_bytes(data[-2:], 'big')) - yOffset
 
-    #hellllllloooooooooooo
+    
     #print ("json: " + mqttSend(x,y,z) )
     #functions.mqttReceive()
     #mqttSend(x,y,z)
