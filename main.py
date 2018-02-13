@@ -1,31 +1,24 @@
 from machine import Pin, I2C
-import time, functions
+import time, functions, acc, mag, text
 
+# Initialize
 i2c = I2C(scl=Pin(5), sda=Pin(4), freq=100000)
 
 # Connect to wifi
 #functions.do_connect()
 
 # Initializecontinuous measurement
-functions.setup_cont_M(i2c)
+mag.setup_cont(i2c)
 
+# Initialize accelerometer
+acc.setup(i2c)
 
-xOffset,yOffset = 0,0#functions.calibrate(i2c)
-print ('x y offset = ' + str(xOffset) +' , ' + str(yOffset))
-
-
-functions.pikachu()
-flatCount = 0
+xOffset , yOffset = 0,0#functions.calibrate(i2c)
 
 def start ():
     n = 0
-    while n< 11:
-        # Read 6 bytes starting from reg 3  - Reg 3 - 8 contain X Z Y
-        data = i2c.readfrom_mem(30, 0x03, 6)
-
-        x = functions.twos_complement(int.from_bytes(data[:2], 'big')) -xOffset
-        z = functions.twos_complement(int.from_bytes(data[2:4], 'big'))
-        y = functions.twos_complement(int.from_bytes(data[-2:], 'big')) - yOffset
+    while n < 3:
+        x, y, z = mag.readXYZ(i2c)
 
         #print ("json: " + mqttSend(x,y,z) )
         #functions.mqttReceive()
@@ -33,55 +26,77 @@ def start ():
         # print (str(x) + ', ' + str(y) + ', ' + str(z))
         # print (str(x) + ', ' + str(y))
         # print ('magnitude = ' + str(math.sqrt(x*x + y*y)) )
-        xy = functions.angle(x,y)
-        xz = functions.angle(x,z)
-        yz = functions.angle(y,z)
+        xy = mag.angle(x,y)
+        xz = mag.angle(x,z)
+        yz = mag.angle(y,z)
         # print ('XY:' + str(xy) + ',        XZ:' + str(functions.angle(x,z)) + ' ,       YZ:' + str(functions.angle(y,z)) )
         # functions.compass(xy);
         # functions.compass(yz);
         # functions.compass(xz);
+
         if n == 0:
+            # text.start_swing()
+            print ('Calculating...')
             inxy = xy
             inxz = xz
             inyz = yz
-        if n == 10:
 
-            # if xy >= 310 or xy <= 50 or inxy >= 310 or inxy <= 50:
-            #     xy = (xy+150)%360
-            #     inxy = (inxy+150)%360
-            # if yz >= 310 or yz <= 50 or inyz >= 310 or inyz <= 50:
-            #     yz = (yz+150)%360
-            #     inyz = (inyz+150)%360
-            # if xz >= 310 or xz <= 50 or inxz >= 310 or inxz <= 50:
-            #     xz = (xz+150)%360
-            #     inxz = (inxz+150)%360
-            yzd = functions.difference(yz,inyz)
-            xyd = functions.difference(xy,inxy)
-            xzd = functions.difference(xz,inxz)
-            print('angles yz: ' + str(yzd) +' xy: ' + str(xyd) + ' yz: ' +str(xzd) )
-            if yzd >= 40 and xyd <=50 and xzd <= 50:
-                functions.flat_swing()
+        if n == 2:
+            print ('Result:')
+            yzd = mag.difference(yz,inyz)
+            xyd = mag.difference(xy,inxy)
+            xzd = mag.difference(xz,inxz)
+            #print('angles yz: ' + str(yzd) +' xy: ' + str(xyd) + ' yz: ' +str(xzd) )
+            # print (str(yzd) + ','+ str(xyd) + ',' + str(xzd))
+            if yzd >= 50 and xyd <=50 and xzd <= 50:
+                text.flat_swing()
+                #print ('angle achieved :' + str(yzd))
                 global flatCount
                 flatCount += 1
-                # return 1
+
+            elif yzd >=29 and xy >= 56 and xzd >= 13:
+                text.top_spin()
             else:
-                print ('No swing detected')
+                # print ('yz :' + str(yzd) + ' xy: ' + str(xyd) + ' xz: ' + str(xzd))
                 print ('Angle achieved = ' + str(yzd))
-                print ('Deviation      = ' + str(40 - yzd))
-                print ('Please ensure you swing from your waist to the front of your body.)
-                # return 0
+                print ('No swing detected')
+                # print ('Deviation      = ' + str(40 - yzd))
+                # print ('Please ensure you swing from your waist to the front of your body.')
+                return 0
+
+        # i2c.writeto(30, b'\x03')
         n += 1
-        i2c.writeto(30, b'\x03')
         time.sleep_ms(150)
 
-
+#=================================Start program ==================
+text.pikachu()
+flatCount = 0
 input("PLEASE PRESS ENTER TO START")
-
+text.ready()
 
 while True :
-    functions.start_swing()
-    start()
-    # flatCount = flatCount +start()
-    print ('flatCount: ' + str(flatCount) )
-    print('wait for a while before swinging')
-    time.sleep_ms(1500)
+    # if machine,Pin.IN(12, machine.Pin).value()
+
+
+    if acc.magnitude(i2c) > 150:
+        start()
+        text.ready()
+    # flatCount = flatCount + start()
+    # print ('flatCount: ' + str(flatCount) )
+    # print('wait for a while before swinging')
+    # acc.readXYZ(i2c)
+    # print ('===============')
+    # print ('')
+    # print ('')
+
+    # x,y,z = mag.readXYZ(i2c)
+    # xy = mag.angle(x,y)
+    # xz = mag.angle(x,z)
+    # yz = mag.angle(y,z)
+    # print ('xy')
+    # text.compass(xy)
+    # print ('xyz')
+    # text.compass(xz)
+    # print ('yz')
+    # text.compass(yz)
+    # time.sleep_ms(400)
