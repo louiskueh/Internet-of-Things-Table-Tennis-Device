@@ -1,5 +1,6 @@
 from machine import Pin, I2C
-import time, functions, acc, mag, text
+from math import sqrt
+import  time, functions, acc, mag, text
 
 # Initialize
 i2c = I2C(scl=Pin(5), sda=Pin(4), freq=100000)
@@ -74,13 +75,39 @@ flatCount = 0
 input("PLEASE PRESS ENTER TO START")
 text.ready()
 
+pressed = 1;
+
 while True :
-    # if machine,Pin.IN(12, machine.Pin).value()
+    first = Pin(12, Pin.IN, Pin.PULL_UP).value()
+    if first:
+        time.sleep(0.01)
+        second = Pin(12, Pin.IN, Pin.PULL_UP).value()
+        if first and not second:
+            pressed = not pressed
+            text.ready()
+
+    if pressed == 1:
+        if acc.magnitude(i2c) > 150:
+            start()
+            text.ready()
+    if pressed == 0:
+        print ('fake compass')
+        # x,y,z = mag.readXYZ(i2c)
+        # xy = mag.angle(x,y)
+        # xz = mag.angle(x,z)
+        # yz = mag.angle(y,z)
+        # print ('xy')
+        # text.compass(xy)
+        # print ('xz')
+        # text.compass(xz)
+        # print ('yz')
+        # text.compass(yz)
+        # time.sleep_ms(400)
 
 
-    if acc.magnitude(i2c) > 150:
-        start()
-        text.ready()
+
+
+
     # flatCount = flatCount + start()
     # print ('flatCount: ' + str(flatCount) )
     # print('wait for a while before swinging')

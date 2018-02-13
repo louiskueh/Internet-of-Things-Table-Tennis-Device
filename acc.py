@@ -1,5 +1,6 @@
 from machine import Pin, I2C
-import math, time,functions
+from math import sqrt
+import  time,functions
 
 REG_CTRL1       = const(0x20)
 REG_CTRL3       = const(0x22)
@@ -33,7 +34,7 @@ def magnitude(i2c):
     ACCy = readACC(0x2A,0x2B,i2c)
     ACCz = readACC(0x2C,0x2D,i2c)
     # print ("Magnitude : " + str(math.sqrt(pow(ACCx,2) + pow (ACCy,2) + pow(ACCz,2))) )
-    return math.sqrt(pow(ACCx,2) + pow (ACCy,2) + pow(ACCz,2))
+    return sqrt(pow(ACCx,2) + pow (ACCy,2) + pow(ACCz,2))
 def readXYZ(i2c):
     ACCx = readACC(0x28,0x29,i2c)
     ACCy = readACC(0x2A,0x2B,i2c)
@@ -41,5 +42,5 @@ def readXYZ(i2c):
     #data = i2c.readfrom_mem(24, REG_OUT_X_L | 0x80, 6)
     #status = print(i2c.readfrom_mem(24, 0x27, 1))
     print ("ACCx: " + str(round(ACCx)) + "   ACCy: " + str(round(ACCy)) + "  ACCz: " + str(round(ACCz) ))
-    print ("Magnitude : " + math.sqrt(pow(ACCx,2) + pow (ACCy,2) + pow(ACCz,2)) )
+    print ("Magnitude : " + sqrt(pow(ACCx,2) + pow (ACCy,2) + pow(ACCz,2)) )
     return ACCx, ACCy, ACCz
