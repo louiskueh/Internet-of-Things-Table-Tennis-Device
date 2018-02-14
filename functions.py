@@ -23,24 +23,45 @@ def twos_complement12(val):
     if (val & (1 << (12 - 1))):
         val = val - (1 << 12)
     return val
+def mqttConnect():
+    CLIENT_ID = ubinascii.hexlify(machine.unique_id())
+    #BROKER_ADDRESS = "192.168.0.10"
+    BROKER_ADDRESS = "192.168.0.87"
+    TOPIC = b"pikachu/cw"
+    # End
+    client = MQTTClient(CLIENT_ID,BROKER_ADDRESS,port = 1883)
+    client.connect()
+    print ('connected to broker sucessfully')
+    time.sleep_ms(100)
+    return client
 
-
-def mqttSend(x,y,z):
-    # X Y Z to json
-    dict = {'X' : x, 'Y':y, 'Z':z  }
+def mqttSend(name,val,client):
+    dict = {name : val}
     jsonString = ujson.dumps(dict)
     CLIENT_ID = ubinascii.hexlify(machine.unique_id())
     #BROKER_ADDRESS = "192.168.0.10"
     BROKER_ADDRESS = "192.168.0.87"
     TOPIC = b"pikachu/cw"
-
-    # End
-    client = MQTTClient(CLIENT_ID,BROKER_ADDRESS,port = 1883)
-    client.connect()
-    #client.publish(TOPIC,b"hi")
     client.publish(TOPIC, bytes (jsonString, 'utf-8'))
     #print ('sent: hi with topic: ' + str(TOPIC)  )
     print ('sent: ' + jsonString + str(TOPIC))
+
+# def mqttSend(x,y,z):
+#     # X Y Z to json
+#     dict = {'yzd' : x, 'xyd':y, 'xzd':z  }
+#     jsonString = ujson.dumps(dict)
+#     CLIENT_ID = ubinascii.hexlify(machine.unique_id())
+#     #BROKER_ADDRESS = "192.168.0.10"
+#     BROKER_ADDRESS = "192.168.0.87"
+#     TOPIC = b"pikachu/cw"
+#
+#     # End
+#     client = MQTTClient(CLIENT_ID,BROKER_ADDRESS,port = 1883)
+#     client.connect()
+#     #client.publish(TOPIC,b"hi")
+#     client.publish(TOPIC, bytes (jsonString, 'utf-8'))
+#     #print ('sent: hi with topic: ' + str(TOPIC)  )
+#     print ('sent: ' + jsonString + str(TOPIC))
 
 ## Receive data from broker
 def mqttReceive():

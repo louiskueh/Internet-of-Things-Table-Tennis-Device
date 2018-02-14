@@ -16,7 +16,7 @@ acc.setup(i2c)
 
 xOffset , yOffset = 0,0#functions.calibrate(i2c)
 
-def start ():
+def start (client):
     n = 0
     while n < 3:
         x, y, z = mag.readXYZ(i2c)
@@ -47,17 +47,22 @@ def start ():
             yzd = mag.difference(yz,inyz)
             xyd = mag.difference(xy,inxy)
             xzd = mag.difference(xz,inxz)
+            #functions.mqttSend(yzd,xyd,xzd)
+
             #print('angles yz: ' + str(yzd) +' xy: ' + str(xyd) + ' yz: ' +str(xzd) )
             # print (str(yzd) + ','+ str(xyd) + ',' + str(xzd))
             if yzd >= 50 and xyd <=50 and xzd <= 50:
+                functions.mqttSend('s',1,client)
                 text.flat_swing()
                 #print ('angle achieved :' + str(yzd))
                 global flatCount
                 flatCount += 1
 
             elif yzd >=29 and xy >= 56 and xzd >= 13:
+                functions.mqttSend('s',2,client)
                 text.top_spin()
             else:
+                functions.mqttSend('s',0,client)
                 # print ('yz :' + str(yzd) + ' xy: ' + str(xyd) + ' xz: ' + str(xzd))
                 print ('Angle achieved = ' + str(yzd))
                 print ('No swing detected')
@@ -76,7 +81,9 @@ input("PLEASE PRESS ENTER TO START")
 text.ready()
 
 pressed = 1;
-
+functions.do_connect()
+client = functions.mqttConnect()
+#functions.mqttSend(1,2,3)
 while True :
     first = Pin(12, Pin.IN, Pin.PULL_UP).value()
     if first:
@@ -88,10 +95,13 @@ while True :
 
     if pressed == 1:
         if acc.magnitude(i2c) > 150:
-            start()
+            start(client)
             text.ready()
     if pressed == 0:
-        print ('fake compass')
+        x, y, z = mag.readXYZ(i2c)
+        functions.mqttSend('c',mag.angle(x,y),client)
+        #print ('fake compass')
+        time.sleep_ms(50)
         # x,y,z = mag.readXYZ(i2c)
         # xy = mag.angle(x,y)
         # xz = mag.angle(x,z)
@@ -103,27 +113,3 @@ while True :
         # print ('yz')
         # text.compass(yz)
         # time.sleep_ms(400)
-
-
-
-
-
-    # flatCount = flatCount + start()
-    # print ('flatCount: ' + str(flatCount) )
-    # print('wait for a while before swinging')
-    # acc.readXYZ(i2c)
-    # print ('===============')
-    # print ('')
-    # print ('')
-
-    # x,y,z = mag.readXYZ(i2c)
-    # xy = mag.angle(x,y)
-    # xz = mag.angle(x,z)
-    # yz = mag.angle(y,z)
-    # print ('xy')
-    # text.compass(xy)
-    # print ('xyz')
-    # text.compass(xz)
-    # print ('yz')
-    # text.compass(yz)
-    # time.sleep_ms(400)
