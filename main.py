@@ -37,11 +37,11 @@ def start (client):
             xyd = mag.difference(xy,inxy)
             xzd = mag.difference(xz,inxz)
 
-            if yzd >=75 and xyd <=50 and xzd <= 50:
+            if yzd >=50 and xyd <=50 and xzd <= 50:
                 functions.mqttSend('s',1,client)
                 print ('flat swing')
 
-            elif yzd >=29 and xy >= 56 and xzd >= 13:
+            elif yzd >=29 and xyd >= 56 and xzd >= 13:
                 functions.mqttSend('s',2,client)
                 print('top spin')
             else:
@@ -75,7 +75,7 @@ acc.setup(i2c)
 #Setup mqtt client, ensure you are connected to EE Rover
 client = functions.mqttConnect()
 
-input("PLEASE PRESS ENTER TO START")
+#input("PLEASE PRESS ENTER TO START")
 print('ready')
 
 pressed = True;
