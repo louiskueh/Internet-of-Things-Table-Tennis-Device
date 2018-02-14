@@ -48,7 +48,16 @@ def mqttSend(name,val,client):
     client.publish(TOPIC, bytes (jsonString, 'utf-8'))
     print ('sent: ' + jsonString + str(TOPIC))
 
-
+# Send 3 data
+def mqttSend3(x,y,z,client):
+    dict = {'XY': x, 'YZ':y, 'XZ':z}
+    jsonString = dumps(dict)
+    CLIENT_ID = hexlify(unique_id())
+    #BROKER_ADDRESS = "192.168.0.10"
+    BROKER_ADDRESS = "192.168.0.87"
+    TOPIC = b"pikachu/cw"
+    client.publish(TOPIC, bytes (jsonString, 'utf-8'))
+    print ('sent: ' + jsonString + str(TOPIC))
 ## Receive data from broker
 def mqttReceive():
 

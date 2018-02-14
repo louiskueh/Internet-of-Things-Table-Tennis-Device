@@ -37,7 +37,7 @@ def start (client):
             xyd = mag.difference(xy,inxy)
             xzd = mag.difference(xz,inxz)
 
-            if yzd >= 50 and xyd <=50 and xzd <= 50:
+            if yzd >=75 and xyd <=50 and xzd <= 50:
                 functions.mqttSend('s',1,client)
                 print ('flat swing')
 
@@ -45,7 +45,9 @@ def start (client):
                 functions.mqttSend('s',2,client)
                 print('top spin')
             else:
-                functions.mqttSend('s',0,client)
+                #Miss! send data to server for processing
+                functions.mqttSend3(xyd,yzd,xzd,client)
+                #functions.mqttSend('s',0,client)
                 print ('Angle achieved = ' + str(yzd))
                 print ('No swing detected')
                 return 0
@@ -76,24 +78,24 @@ client = functions.mqttConnect()
 input("PLEASE PRESS ENTER TO START")
 print('ready')
 
-pressed = 1;
+pressed = True;
 while True :
     #button pressed will swap pressed value
     #pressed = 1 - we are measuring swings
     #pressed = 0 - we are using the compass mode
     first = Pin(12, Pin.IN, Pin.PULL_UP).value()
     if first:
-        sleep_ms(10)
+        sleep_ms(50)
         second = Pin(12, Pin.IN, Pin.PULL_UP).value()
+        print('second = ' + str(second))
         if first and not second:
             pressed = not pressed
-            print('Button pressed')
 
-    if pressed == 1:
+    if pressed == True:
         if acc.magnitude(i2c) > 150:
             start(client)
-    if pressed == 0:
+    if pressed == False:
         x, y, z = mag.readXYZ(i2c)
         functions.mqttSend('c',mag.angle(x,y),client)
 
-        sleep_ms(50)
+    #sleep_ms(50)
