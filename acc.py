@@ -1,6 +1,6 @@
 from machine import Pin, I2C
 from math import sqrt
-import  time,functions
+import functions
 
 REG_CTRL1       = const(0x20)
 REG_CTRL3       = const(0x22)

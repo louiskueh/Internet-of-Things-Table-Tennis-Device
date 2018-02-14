@@ -1,6 +1,7 @@
 from machine import Pin, I2C
-import functions, time, machine, math
-
+from math import atan2
+from time import sleep_ms,time
+import functions
 # magnetometer
 
 def difference (x,y):
@@ -14,7 +15,7 @@ def angle (x,y):
     if y == 0:
         y = 0.000001
     # heading = math.degrees(math.atan(x/y))
-    heading = math.atan2(y, x)
+    heading = atan2(y, x)
     # if (angle < 0):
     #     angle = 90 - angle
     declinationAngle = 0.00756
@@ -36,9 +37,9 @@ def calibrate (i2c):
     minY = 9999
     maxX = -9999
     maxY = -9999
-    t_end = time.time() + 20
+    t_end = time() + 20
     print ('starting calibration. Please move magnetometer in circles for 1 min')
-    while time.time() < t_end :
+    while time() < t_end :
         data = i2c.readfrom_mem(30, 0x03, 6)
 
         x = functions.twos_complement(int.from_bytes(data[:2], 'big'))
@@ -58,7 +59,7 @@ def calibrate (i2c):
             print("New maxY = " + str(maxY))
             maxY=y
         #i2c.writeto(30, b'\x03')
-        time.sleep_ms(100)
+        sleep_ms(100)
     print ('Finished calibration')
     xOffset = (maxX + minX) / 2 ;
     yOffset = (maxY + minY) / 2 ;
@@ -80,4 +81,4 @@ def setup_cont(i2c):
     i2c.writeto_mem(30, 0x01, b'\xA0')     # gain = 5
     i2c.writeto_mem(30, 0x02, b'\x00')     # Set to continous measurement mode
     print('Setup successful')
-    time.sleep_ms(6)
+    sleep_ms(6)

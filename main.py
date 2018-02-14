@@ -1,42 +1,31 @@
 from machine import Pin, I2C
 from math import sqrt
-import  time, functions, acc, mag, text
+from time import sleep_ms
+import functions, acc, mag
 
-# Initialize
-i2c = I2C(scl=Pin(5), sda=Pin(4), freq=100000)
-
+#========== functions =============
+# Twos complement
+# MQTT send/receive
 # Connect to wifi
-#functions.do_connect()
 
-# Initializecontinuous measurement
-mag.setup_cont(i2c)
+#========== acc ===============
+# accelerometer API
 
-# Initialize accelerometer
-acc.setup(i2c)
+#========== mag ===============
+# magnetometer api
 
-xOffset , yOffset = 0,0#functions.calibrate(i2c)
 
+
+# Main function to detect change in angle within 300ms
 def start (client):
     n = 0
     while n < 3:
         x, y, z = mag.readXYZ(i2c)
-
-        #print ("json: " + mqttSend(x,y,z) )
-        #functions.mqttReceive()
-        #mqttSend(x,y,z)
-        # print (str(x) + ', ' + str(y) + ', ' + str(z))
-        # print (str(x) + ', ' + str(y))
-        # print ('magnitude = ' + str(math.sqrt(x*x + y*y)) )
         xy = mag.angle(x,y)
         xz = mag.angle(x,z)
         yz = mag.angle(y,z)
-        # print ('XY:' + str(xy) + ',        XZ:' + str(functions.angle(x,z)) + ' ,       YZ:' + str(functions.angle(y,z)) )
-        # functions.compass(xy);
-        # functions.compass(yz);
-        # functions.compass(xz);
 
         if n == 0:
-            # text.start_swing()
             print ('Calculating...')
             inxy = xy
             inxz = xz
@@ -47,69 +36,64 @@ def start (client):
             yzd = mag.difference(yz,inyz)
             xyd = mag.difference(xy,inxy)
             xzd = mag.difference(xz,inxz)
-            #functions.mqttSend(yzd,xyd,xzd)
 
-            #print('angles yz: ' + str(yzd) +' xy: ' + str(xyd) + ' yz: ' +str(xzd) )
-            # print (str(yzd) + ','+ str(xyd) + ',' + str(xzd))
             if yzd >= 50 and xyd <=50 and xzd <= 50:
                 functions.mqttSend('s',1,client)
-                text.flat_swing()
-                #print ('angle achieved :' + str(yzd))
-                global flatCount
-                flatCount += 1
+                print ('flat swing')
 
             elif yzd >=29 and xy >= 56 and xzd >= 13:
                 functions.mqttSend('s',2,client)
-                text.top_spin()
+                print('top spin')
             else:
                 functions.mqttSend('s',0,client)
-                # print ('yz :' + str(yzd) + ' xy: ' + str(xyd) + ' xz: ' + str(xzd))
                 print ('Angle achieved = ' + str(yzd))
                 print ('No swing detected')
-                # print ('Deviation      = ' + str(40 - yzd))
-                # print ('Please ensure you swing from your waist to the front of your body.')
                 return 0
 
-        # i2c.writeto(30, b'\x03')
         n += 1
-        time.sleep_ms(150)
+        sleep_ms(150)
 
-#=================================Start program ==================
-text.pikachu()
-flatCount = 0
+#=================================Start program ============================
+# Initialize i2c
+i2c = I2C(scl=Pin(5), sda=Pin(4), freq=100000)
+
+# Connect to wifi
+functions.do_connect()
+
+# Initializecontinuous measurement
+mag.setup_cont(i2c)
+
+# Initialize accelerometer
+acc.setup(i2c)
+
+# Calibration (currently not needed for angle measurement)
+#xOffset , yOffset = 0,0
+#functions.calibrate(i2c)
+
+#Setup mqtt client, ensure you are connected to EE Rover
+client = functions.mqttConnect()
+
 input("PLEASE PRESS ENTER TO START")
-text.ready()
+print('ready')
 
 pressed = 1;
-functions.do_connect()
-client = functions.mqttConnect()
-#functions.mqttSend(1,2,3)
 while True :
+    #button pressed will swap pressed value
+    #pressed = 1 - we are measuring swings
+    #pressed = 0 - we are using the compass mode
     first = Pin(12, Pin.IN, Pin.PULL_UP).value()
     if first:
-        time.sleep(0.01)
+        sleep_ms(10)
         second = Pin(12, Pin.IN, Pin.PULL_UP).value()
         if first and not second:
             pressed = not pressed
-            text.ready()
+            print('Button pressed')
 
     if pressed == 1:
         if acc.magnitude(i2c) > 150:
             start(client)
-            text.ready()
     if pressed == 0:
         x, y, z = mag.readXYZ(i2c)
         functions.mqttSend('c',mag.angle(x,y),client)
-        #print ('fake compass')
-        time.sleep_ms(50)
-        # x,y,z = mag.readXYZ(i2c)
-        # xy = mag.angle(x,y)
-        # xz = mag.angle(x,z)
-        # yz = mag.angle(y,z)
-        # print ('xy')
-        # text.compass(xy)
-        # print ('xz')
-        # text.compass(xz)
-        # print ('yz')
-        # text.compass(yz)
-        # time.sleep_ms(400)
+
+        sleep_ms(50)
