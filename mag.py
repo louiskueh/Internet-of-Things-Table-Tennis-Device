@@ -16,8 +16,6 @@ def angle (x,y):
         y = 0.000001
     # heading = math.degrees(math.atan(x/y))
     heading = atan2(y, x)
-    # if (angle < 0):
-    #     angle = 90 - angle
     declinationAngle = 0.00756
     heading += declinationAngle
 
@@ -58,7 +56,6 @@ def calibrate (i2c):
     	if y > maxY:
             print("New maxY = " + str(maxY))
             maxY=y
-        #i2c.writeto(30, b'\x03')
         sleep_ms(100)
     print ('Finished calibration')
     xOffset = (maxX + minX) / 2 ;

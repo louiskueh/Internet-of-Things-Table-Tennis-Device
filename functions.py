@@ -101,7 +101,7 @@ def do_connect():
         sta_if = WLAN(STA_IF)
         sta_if.active(True)
         sleep_ms(100)
-        sta_if.connect('EEERover', 'exhibition')
+         sta_if.connect('EEERover', 'exhibition')
         #Needed for setup
         sleep_ms(2000)
     print('Network connected:', sta_if.isconnected())

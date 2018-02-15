@@ -38,16 +38,12 @@ def start (client):
             xzd = mag.difference(xz,inxz)
 
             if yzd >=50 and xyd <=50 and xzd <= 50:
-                functions.mqttSend('s',1,client)
                 print ('flat swing')
 
             elif yzd >=29 and xyd >= 56 and xzd >= 13:
-                functions.mqttSend('s',2,client)
                 print('top spin')
             else:
                 #Miss! send data to server for processing
-                functions.mqttSend3(xyd,yzd,xzd,client)
-                #functions.mqttSend('s',0,client)
                 print ('Angle achieved = ' + str(yzd))
                 print ('No swing detected')
                 return 0
@@ -60,7 +56,7 @@ def start (client):
 i2c = I2C(scl=Pin(5), sda=Pin(4), freq=100000)
 
 # Connect to wifi
-functions.do_connect()
+#functions.do_connect()
 
 # Initializecontinuous measurement
 mag.setup_cont(i2c)
@@ -73,13 +69,13 @@ acc.setup(i2c)
 #functions.calibrate(i2c)
 
 #Setup mqtt client, ensure you are connected to EE Rover
-client = functions.mqttConnect()
 
 input("PLEASE PRESS ENTER TO START")
 print('ready')
 
 pressed = True;
 while True :
+    client = 0
     #button pressed will swap pressed value
     #pressed = 1 - we are measuring swings
     #pressed = 0 - we are using the compass mode
@@ -90,13 +86,11 @@ while True :
         print('second = ' + str(second))
         if first and not second:
             pressed = not pressed
-    # Swing mode 
+
     if pressed == True:
         if acc.magnitude(i2c) > 150:
             start(client)
-    # Compass mode
     if pressed == False:
         x, y, z = mag.readXYZ(i2c)
-        functions.mqttSend('c',mag.angle(x,y),client)
 
-    sleep_ms(1)
+    #sleep_ms(50)
