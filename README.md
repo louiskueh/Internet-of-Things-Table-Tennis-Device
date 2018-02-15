@@ -1,8 +1,3 @@
-# Website
-[link-to-website](https://octavianhainadal.wixsite.com/pikachu)
-
-
-
 # Files
 Please find the workflow in the *Workflow-graph.pdf*
 ## Device files
@@ -60,6 +55,10 @@ Please find the workflow in the *Workflow-graph.pdf*
   * Use machine learning algorithms to analyse an individuals movement, enabling the device to get more accurate as a particular person uses it
   * Currently strapped on to a glove, perhaps adapting it to a bracelet (e.g. fitbit)/ adapting to be on the bottom of the handle
   * Utilise algorithms such as the Kalman filter to improve accuracy
+
+
+# Website
+[link-to-website](https://octavianhainadal.wixsite.com/pikachu)
 
 
 # Contribution
