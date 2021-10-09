@@ -1,4 +1,6 @@
 # An IoT device that teaches correct table tennis techniques
+Uses [HMC5883L_3-Axis_Digital_Compass_IC](https://github.com/louiskueh/Internet-of-Things-Table-Tennis-Device/blob/master/data-sheets-markscheme/HMC5883L_3-Axis_Digital_Compass_IC.pdf)
+
 ![f27038_b3cec7a828da47f591769e6801ab0376_mv2](https://user-images.githubusercontent.com/2521843/42291927-c51fa02c-7fc6-11e8-933e-f8bc6eb80e25.png)
 
 
