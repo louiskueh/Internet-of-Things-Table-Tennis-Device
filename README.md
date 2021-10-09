@@ -1,4 +1,4 @@
-
+# An IoT device that teaches correct table tennis techniques
 ![f27038_b3cec7a828da47f591769e6801ab0376_mv2](https://user-images.githubusercontent.com/2521843/42291927-c51fa02c-7fc6-11e8-933e-f8bc6eb80e25.png)
 
 
